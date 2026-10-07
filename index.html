@@ -193,7 +193,7 @@
         <p class="panel-title">基本の数字</p>
         <div class="row"><label>使う書類</label>
           <div class="toggle" id="srcToggle"><button type="button" data-v="gensen" class="active">源泉徴収票</button><button type="button" data-v="shinkoku">確定申告書</button></div></div>
-        <div class="row"><label for="nenbun">年分<span class="req">必須</span><span class="hint">住民税は翌年度分（例：令和7年分 → 令和8年度）を計算します。ふるさと納税の上限は、この書類から出す翌年（例：令和8年）の寄附の目安です</span></label>
+        <div class="row"><label for="nenbun">年分<span class="req">必須</span><span class="hint" id="nenbunHint">住民税は翌年度分（例：令和7年分 → 令和8年度）を計算します。ふるさと納税の上限は、この書類から出す翌年（例：令和8年）の寄附の目安です</span></label>
           <div class="field"><select id="nenbun"><option value="7">令和7年分</option><option value="8" selected>令和8年分</option></select></div></div>
         <div id="srcShinkoku" style="display:none;">
           <p class="sub-title" style="margin:4px 0 4px;">欄の番号は令和7年分以降の第一表です</p>
@@ -211,9 +211,9 @@
       </div>
 
       <details class="opt" id="optKoujo">
-        <summary>配偶者・扶養・障害者など・生命保険・地震保険（任意・精度が上がる）</summary>
+        <summary id="optKoujoSum">配偶者・扶養・障害者など・生命保険・地震保険（任意・精度が上がる）</summary>
         <div class="inner">
-          <p class="sub-title" style="margin:6px 0 10px;">住民税は、これらの控除が所得税より小さく決められています（例：配偶者控除 38万円→33万円）。入れると、その分だけ住民税の課税所得を増やして計算します。入れなくても計算でき、ずれは多くて1万円前後です。<span data-s="欄の名前は確定申告書（第一表・第二表）に合わせています" data-g="欄の名前は源泉徴収票に合わせています。上から順に転記してください"></span></p>
+          <p class="sub-title" id="optKoujoIntro" style="margin:6px 0 10px;">住民税は、これらの控除が所得税より小さく決められています（例：配偶者控除 38万円→33万円）。入れると、その分だけ住民税の課税所得を増やして計算します。入れなくても計算でき、ずれは多くて1万円前後です。<span data-s="欄の名前は確定申告書（第一表・第二表）に合わせています" data-g="欄の名前は源泉徴収票に合わせています。上から順に転記してください"></span></p>
 
           <p class="group-label" style="margin-top:0;border-top:none;padding-top:0;">配偶者</p>
           <div class="row"><label for="kHaigusha">配偶者（特別）控除の額<span class="hint" data-s="第一表 ㉑㉒「配偶者（特別）控除」" data-g="「配偶者（特別）控除の額」"></span></label><div class="field"><input type="number" id="kHaigusha" min="0" value="0"><span class="unit">円</span></div></div>
@@ -251,9 +251,9 @@
       </details>
 
       <details class="opt" id="optKifu">
-        <summary>前年のふるさと納税・住宅ローン控除（任意）</summary>
+        <summary id="optKifuSum">前年のふるさと納税・住宅ローン控除（任意）</summary>
         <div class="inner">
-          <div class="row"><label for="furusato">書類の年にしたふるさと納税の寄附額<span class="hint" id="furusatoHint"></span><span class="hint">住民税の計算だけに使います（上限の計算には影響しません）</span></label><div class="field"><input type="number" id="furusato" min="0" value="" placeholder="空欄可"><span class="unit">円</span></div></div>
+          <div class="row" id="furusatoRow"><label for="furusato">書類の年にしたふるさと納税の寄附額<span class="hint" id="furusatoHint"></span><span class="hint">住民税の計算だけに使います（上限の計算には影響しません）</span></label><div class="field"><input type="number" id="furusato" min="0" value="" placeholder="空欄可"><span class="unit">円</span></div></div>
                     <div class="row"><label for="loanUsed">住宅借入金等特別控除の額<span class="hint" data-s="所得税で引いた額。第一表 ㉟「住宅借入金等特別控除」" data-g="「住宅借入金等特別控除の額」"></span></label><div class="field"><input type="number" id="loanUsed" min="0" value="0"><span class="unit">円</span></div></div>
           <div class="row"><label for="loanKano">住宅ローン控除の控除可能額<span class="hint" data-s="（特定増改築等）住宅借入金等特別控除額の計算明細書で求めた控除額（所得税で引ききれなかった分を含む額）" data-g="「住宅借入金等特別控除可能額」（引ききれなかったときだけ印字されます。空欄なら上と同じ額）"></span></label><div class="field"><input type="number" id="loanKano" min="0" value="0"><span class="unit">円</span></div></div>
           <div class="row"><label for="loanKikan">入居した時期<span class="hint" data-s="計算明細書の「居住開始年月日」。住民税から引ける上限が変わります" data-g="「居住開始年月日（1回目）」。住民税から引ける上限が変わります"></span></label><div class="field"><select id="loanKikan">
@@ -270,12 +270,12 @@
         <span id="saveStatus">入力内容はこのブラウザに自動で保存されます</span>
         <button type="button" id="clearBtn" style="border:none;background:none;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;">入力をクリア</button>
       </div>
-      <div class="file-box" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+      <div class="file-box" id="fileBox" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
         <button type="button" id="jsonSaveBtn" class="pdf-btn secondary" style="flex:1 1 150px;padding:9px;font-size:13px;">入力をファイルに保存</button>
         <button type="button" id="jsonOpenBtn" class="pdf-btn secondary" style="flex:1 1 150px;padding:9px;font-size:13px;">保存したファイルを開く</button>
         <input type="file" id="jsonFile" accept=".json,application/json" style="display:none;">
       </div>
-      <p style="font-size:11px;color:#8B8F86;margin:6px 0 0;">お客様ごとに保存できます（ファイル名：宛名＋日付）。開くと、保存したときの入力に置き換わります。</p>
+      <p id="fileBoxNote" style="font-size:11px;color:#8B8F86;margin:6px 0 0;">お客様ごとに保存できます（ファイル名：宛名＋日付）。開くと、保存したときの入力に置き換わります。</p>
     </div>
 
     <div class="panel result-panel">
@@ -285,7 +285,7 @@
       <div class="pdf-box">
         <p class="panel-title">PDFで保存</p>
         <div class="row"><label for="atena">宛名<span class="hint">任意</span></label><div class="field"><input type="text" id="atena" placeholder="例：山田 太郎"></div></div>
-        <div class="row"><label for="pdfContent">PDFに入れる内容</label><div class="field"><select id="pdfContent"><option value="both">住民税とふるさと納税の上限</option><option value="jumin">住民税だけ</option><option value="furusato">ふるさと納税の上限だけ</option></select></div></div>
+        <div class="row" id="pdfContentRow"><label for="pdfContent">PDFに入れる内容</label><div class="field"><select id="pdfContent"><option value="both">住民税とふるさと納税の上限</option><option value="jumin">住民税だけ</option><option value="furusato">ふるさと納税の上限だけ</option></select></div></div>
         <div class="pdf-btns">
           <button type="button" class="pdf-btn primary" id="pdfBtn" disabled>PDFをダウンロード</button>
           <button type="button" class="pdf-btn secondary" id="printBtn" disabled>印刷・PDF（ブラウザ機能）</button>
@@ -295,13 +295,16 @@
     </div>
   </div>
 
-  <p class="note" id="disclaimerText">【住民税】確定申告書（または源泉徴収票から求めた）所得税の課税所得に、住民税では所得税より小さくなる控除の分（基礎・配偶者・扶養・特定親族特別・寡婦・ひとり親・勤労学生・障害者・生命保険料・地震保険料・寄附金の各控除）を足し戻して住民税の課税所得を求め、10%（市民税6%・県民税4%）を掛けて調整控除・税額控除を差し引き、均等割（兵庫県内5,800円）を加えた概算です。申告年分の翌年度の住民税を計算します。配当控除、ふるさと納税以外の寄附金税額控除、分離課税の所得は反映していません。源泉徴収票から計算する場合、ふるさと納税はワンストップ特例を使った前提です。未成年者の非課税判定は反映していません。市民税・県民税を別々に端数処理するため、実際の額と数百円ずれることがあります。正式な額は住民税決定通知書でご確認ください。【ふるさと納税の上限】自己負担2,000円で寄附できる額の目安で、住民税の所得割（調整控除後）の20%を特例分の上限とする仕組みから逆算しています。上限は寄附する年の所得で決まるため、書類の年と収入や控除が変わると上限も変わります。住宅ローン控除で住民税が減っている場合は上限が下がることがあります。寄附は上限ぎりぎりではなく、余裕を持った額をおすすめします。</p>
+  <p class="note" id="disclaimerText"><span id="discJ">【住民税】確定申告書（または源泉徴収票から求めた）所得税の課税所得に、住民税では所得税より小さくなる控除の分（基礎・配偶者・扶養・特定親族特別・寡婦・ひとり親・勤労学生・障害者・生命保険料・地震保険料・寄附金の各控除）を足し戻して住民税の課税所得を求め、10%（市民税6%・県民税4%）を掛けて調整控除・税額控除を差し引き、均等割（兵庫県内5,800円）を加えた概算です。申告年分の翌年度の住民税を計算します。配当控除、ふるさと納税以外の寄附金税額控除は反映していません。株・土地建物の譲渡益など分離課税の所得を確定申告している場合、その分（利益の5%など）の住民税は含まれないため、実際より少なく出ます（特定口座で源泉徴収済みの株や退職金は、毎年の住民税に入らないため影響しません）。源泉徴収票から計算する場合、ふるさと納税はワンストップ特例を使った前提です。未成年者の非課税判定は反映していません。市民税・県民税を別々に端数処理するため、実際の額と数百円ずれることがあります。正式な額は住民税決定通知書でご確認ください。</span><span id="discF">【ふるさと納税の上限】自己負担2,000円で寄附できる額の目安で、住民税の所得割（調整控除後）の20%を特例分の上限とする仕組みから逆算しています。上限は寄附する年の所得で決まるため、書類の年と収入や控除が変わると上限も変わります。住宅ローン控除で住民税が減っている場合は上限が下がることがあります。株・土地建物の譲渡益を確定申告している場合、上限は実際より低め（安全な側）に出ます（退職金は影響しません）。寄附は上限ぎりぎりではなく、余裕を持った額をおすすめします。</span></p>
 </div>
 
 <div id="reportHost"><div id="report"></div></div>
 
 <script>
 const OFFICE_NAME = '';
+// 表示の切り替え：?view=furusato（ふるさと納税の上限だけ）／?view=jumin（住民税だけ）／指定なし（両方・自分用）
+const VIEW = (()=>{ try{ const v = new URLSearchParams(location.search).get('view'); return v==='furusato'||v==='jumin' ? v : 'full'; }catch(e){ return 'full'; } })();
+const SHOW_J = VIEW !== 'furusato', SHOW_F = VIEW !== 'jumin';
 const P = {
   // 所得税の基礎控除（申告年分別）：[合計所得の上限, 控除額]
   基礎控除_所得税: {
@@ -599,16 +602,17 @@ function limitCardHTML(i, L){
 }
 function render(i, r){
   const L = limitCalc(i, r);
-  const cards = [
-    `<div class="card main"><div class="clabel">住民税 年額（${nendo(i)}）</div><div class="cval">${yen(r.juminzei)}<span>円</span></div><div class="csub">月あたり 約${yen(Math.round(r.juminzei/12/100)*100)}円</div></div>`,
-    limitCardHTML(i, L),
-  ];
+  const cards = [];
+  if(SHOW_J) cards.push(`<div class="card main"><div class="clabel">住民税 年額（${nendo(i)}）</div><div class="cval">${yen(r.juminzei)}<span>円</span></div><div class="csub">月あたり 約${yen(Math.round(r.juminzei/12/100)*100)}円</div></div>`);
+  if(SHOW_F) cards.push(limitCardHTML(i, L));
+  // ふるさと納税だけの画面では、住民税にだけ関係する注記は出さない
+  const notes = SHOW_J ? r.notes : r.notes.filter(x=>!x.includes('寄附額') && !x.includes('ワンストップ特例を使った場合'));
   $('resultBody').innerHTML = `
     <div class="cards">${cards.join('')}</div>
-    ${r.notes.map(x=>`<div class="info">${esc(x)}</div>`).join('')}
-    ${L.reason ? '' : `<div class="info">ふるさと納税の上限：上限は寄附する年の所得で決まります。令和${i.nenbun}年分の書類から出した目安なので、収入や控除が変わりそうなら控えめにしてください。${limitNote(i)}</div>`}
-    <details class="howto"><summary>住民税の計算方法を見る</summary><div class="steps">${stepsHTML(i, r)}</div></details>
-    ${L.reason ? '' : `<details class="howto"><summary>ふるさと納税の上限の計算方法を見る</summary><div class="steps">${stepsLimitHTML(i, r, L)}</div></details>`}`;
+    ${notes.map(x=>`<div class="info">${esc(x)}</div>`).join('')}
+    ${SHOW_F && !L.reason ? `<div class="info">ふるさと納税の上限：上限は寄附する年の所得で決まります。令和${i.nenbun}年分の書類から出した目安なので、収入や控除が変わりそうなら控えめにしてください。${limitNote(i)}</div>` : ''}
+    ${SHOW_J ? `<details class="howto"><summary>住民税の計算方法を見る</summary><div class="steps">${stepsHTML(i, r)}</div></details>` : ''}
+    ${SHOW_F && !L.reason ? `<details class="howto"><summary>ふるさと納税の上限の計算方法を見る</summary><div class="steps">${stepsLimitHTML(i, r, L)}</div></details>` : ''}`;
 }
 function todayLabel(d=new Date()){ return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`; }
 function buildReport(i, r){
@@ -689,7 +693,7 @@ document.addEventListener('focusin', e=>{ const el=e.target; if(el.matches && el
 document.addEventListener('mouseup', e=>{ const el=e.target; if(el.matches && el.matches('input[type=number]') && el.dataset.justFocused){ e.preventDefault(); delete el.dataset.justFocused; } });
 document.addEventListener('focusout', e=>{ if(e.target.dataset) delete e.target.dataset.justFocused; });
 
-const STORE_KEY = 'juminzei-keisan:v1';
+const STORE_KEY = VIEW==='full' ? 'juminzei-keisan:v1' : `juminzei-keisan:${VIEW}:v1`;
 const STORE_TOGGLES = ['srcToggle'];
 function snapshot(){
   const fields = {};
@@ -719,6 +723,29 @@ document.getElementById('clearBtn').addEventListener('click', ()=>{
   try{ localStorage.removeItem(STORE_KEY); }catch(e){}
   window.removeEventListener('pagehide', saveState); location.reload();
 });
+function applyView(){
+  if(VIEW==='full') return;
+  const F = VIEW==='furusato';
+  const name = F ? 'ふるさと納税 上限かんたん計算' : '住民税かんたん計算';
+  document.title = name; document.querySelector('header h1').textContent = name;
+  // 入力をファイルに保存は自分用のみ。PDFは中身を固定
+  ['fileBox','fileBoxNote','pdfContentRow'].forEach(id=>{ $(id).style.display='none'; });
+  $('pdfContent').value = VIEW;
+  $(F ? 'discJ' : 'discF').style.display = 'none';
+  $('nenbunHint').textContent = F ? '上限は寄附する年の所得で決まります。前年の書類（例：令和7年分 → 令和8年の寄附）で目安を出します' : '住民税は翌年度分（例：令和7年分 → 令和8年度）を計算します';
+  if(F){
+    $('optKoujoSum').textContent = '家族・保険など（任意：入れると上限が少し上がります）';
+    $('optKoujoIntro').innerHTML = '19〜22歳の子、同居の親、障害のある家族がいる場合などは、入れると上限が数千円上がることがあります。<b>入れなくても計算でき、上限は低め（安全な側）に出ます。</b>';
+    $('furusatoRow').style.display = 'none';
+    $('optKifuSum').textContent = '住宅ローン控除（任意）';
+    $('optKifu').querySelector('.inner').insertAdjacentHTML('afterbegin', '<p class="sub-title" style="margin:6px 0 10px;">所得税で引ききれず、住民税からも引かれている人は、上限が下がることがあります</p>');
+  } else {
+    $('optKoujoSum').textContent = '配偶者・扶養・障害者・保険など（任意：入れると数千円単位で正確になります）';
+    $('optKoujoIntro').innerHTML = '住民税は、これらの控除が所得税より小さく決められています。入れなくても計算でき、ずれは多くて1万円前後です。';
+    $('optKifuSum').innerHTML = '住宅ローン控除・前年のふるさと納税（<b style="color:var(--accent)">該当する人は必ず入力：入れないと住民税が数万円多く出ます</b>）';
+  }
+}
+applyView();
 restoreState();
 // 任意欄に値が入っていれば、その折りたたみを開いておく
 document.querySelectorAll('details.opt').forEach(d=>{
