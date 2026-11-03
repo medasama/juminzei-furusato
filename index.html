@@ -128,6 +128,7 @@
   #report .rp-note{margin-top:8px;font-size:8px;color:#8B8F86;line-height:1.55;}
   #report .rp-foot{margin-top:10px;padding-top:6px;border-top:1px solid #D9DCD3;font-size:10px;color:#8B8F86;display:flex;justify-content:space-between;}
   #report .avoid{page-break-inside:avoid;break-inside:avoid;}
+  #report, #report *{-webkit-print-color-adjust:exact;print-color-adjust:exact;} /* 印刷で「背景のグラフィック」がオフでも色を出す */
 
   @media print{
     @page{size:A4 portrait;margin:12mm;}
@@ -181,8 +182,6 @@
   .card.limit{border-left-color:var(--ink);}
   .snote{font-size:11.5px;color:#8B8F86;margin-top:2px;}
 </style>
-<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
-<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -704,7 +703,11 @@ function snapshot(){
   STORE_TOGGLES.forEach(id=>{ const a = document.getElementById(id).querySelector('.active'); if(a) toggles[id] = a.dataset.v; });
   return { fields, toggles, savedAt: Date.now() };
 }
-function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); }catch(e){} }
+let saveStopped = false; // ファイルを開く・クリアの直前に止める（古い入力で上書きしないため）
+function saveState(){
+  if(saveStopped) return;
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); }catch(e){}
+}
 function restoreState(){
   let st=null; try{ st = JSON.parse(localStorage.getItem(STORE_KEY)||'null'); }catch(e){}
   if(!st) return;
@@ -722,8 +725,10 @@ document.addEventListener('click', e=>{ if(e.target.closest('.toggle button')) s
 window.addEventListener('pagehide', saveState);
 document.getElementById('clearBtn').addEventListener('click', ()=>{
   if(!confirm('入力内容をすべて消して初期状態に戻しますか？')) return;
+  saveStopped = true; clearTimeout(saveTimer);
   try{ localStorage.removeItem(STORE_KEY); }catch(e){}
-  window.removeEventListener('pagehide', saveState); location.reload();
+  window.removeEventListener('pagehide', saveState);
+  location.reload();
 });
 function applyView(){
   if(VIEW==='full') return;
@@ -780,10 +785,12 @@ document.getElementById('jsonFile').addEventListener('change', async e=>{
     if(!confirm(`このファイルは「${from}」で保存したものです。共通の項目だけ読み込みますか？`)) return;
   }
   if(!confirm(`「${file.name}」を開きます。いま入っている入力は置き換わります。よろしいですか？`)) return;
+  // 入力欄の変更で予約された自動保存が、読み込んだ内容を上書きしないよう止める
+  saveStopped = true; clearTimeout(saveTimer);
   try{
     localStorage.setItem(STORE_KEY, JSON.stringify({ fields: data.fields, toggles: data.toggles || {}, kodomo: data.kodomo, oya: data.oya, savedAt: data.savedAt }));
     sessionStorage.setItem(STORE_KEY + ':opened', file.name);
-  }catch(err){ alert('このブラウザでは読み込めませんでした（保存領域が使えない設定です）。'); return; }
+  }catch(err){ saveStopped = false; alert('このブラウザでは読み込めませんでした（保存領域が使えない設定です）。'); return; }
   window.removeEventListener('pagehide', saveState);
   location.reload();
 });
